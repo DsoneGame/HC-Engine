@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using ES3Internal;
+using UnityEditor.Experimental.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -90,7 +91,7 @@ namespace ES3Internal
         public void GeneratePrefabReferences()
         {
 #if UNITY_2018_3_OR_NEWER
-            if (this.gameObject.scene.name != null || UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
+            if (this.gameObject.scene.name != null || PrefabStageUtility.GetCurrentPrefabStage() != null)
 #else
             if (this.gameObject.scene.name != null)
 #endif

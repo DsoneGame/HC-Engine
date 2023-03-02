@@ -1,0 +1,14 @@
+f{
+  "name": "com.hc.engine",
+  "displayName": "HC-Engine",
+  "version": "1.0.1",
+  "unity": "2018.4",
+  "description": "HC-Engine is a useful for Hyper-Casual & Casual game.",
+  "keywords": [ "Engine", "Hyper-Casual", "Casual", "Tools" ],
+  "category": "Engine",
+  "dependencies": {},
+  "author": {
+    "name": "Khayreddine Biada",
+    "url": "https://github.com/khayreddinebiada"
+  }
+}

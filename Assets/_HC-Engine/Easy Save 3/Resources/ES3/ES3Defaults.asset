@@ -29,8 +29,26 @@ MonoBehaviour:
     referenceMode: 2
     serializationDepthLimit: 64
     assemblyNames:
-    - Assembly-CSharp-firstpass
+    - NaughtyAttributes.Test
+    - com.template.engine
+    - com.easysave.core
+    - StompyRobot.SRF
+    - StompyRobot.SRDebugger
+    - NaughtyAttributes.Core
+    - Cinemachine
+    - Autodesk.Fbx
     - Assembly-CSharp
+    - MPUIKit
+    - com.template.utiliy
+    - Tests
+    - FbxBuildTestAssets
+    - NaughtyAttributes.Editor
+    - StompyRobot.SRF.Editor
+    - PPv2URPConverters
+    - com.easysave.editor
+    - StompyRobot.SRDebugger.Editor
+    - MPUIKit.Editor
+    - Autodesk.Fbx.Editor
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1
