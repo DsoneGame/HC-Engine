@@ -193,6 +193,15 @@ namespace Engine.Data
             return FindFieldKey(index);
         }
 
+        public void Clear()
+        {
+            foreach (var item in _elements)
+            {
+                item.Field.Delete();
+            }
+            _elements.Clear();
+        }
+
         public T Find(Predicate<T> match)
         {
             if (match == null) throw new ArgumentNullException("The match has a null value!...");
