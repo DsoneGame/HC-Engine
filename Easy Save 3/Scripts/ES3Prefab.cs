@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using ES3Internal;
-using UnityEditor.Experimental.SceneManagement;
 #if UNITY_EDITOR
+using UnityEditor.Experimental.SceneManagement;
 using UnityEditor;
 #endif
 
