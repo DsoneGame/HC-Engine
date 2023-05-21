@@ -1,17 +1,17 @@
 using Engine.Attribute;
 using UnityEngine;
 
-namespace editor
+namespace Editor
 {
-    [TemplateSettings(k_FilePath, k_FileName)]
+    [TemplateSettings(FilePath, FileName)]
     public class AssetsSettings : ScriptableObject
     {
-        internal const string k_FilePath = "Assets/Settings/Editor/";
-        internal const string k_FileName = "AssetsSettings";
+        internal const string FilePath = "Assets/Settings/Editor/";
+        internal const string FileName = "AssetsSettings";
 
         [Header("Build Settings")]
-        public bool resetData = false;
-        public bool validate = false;
-        public bool saveAssets = false;
+        public bool ResetData = true;
+        public bool Validate = true;
+        public bool SaveAssets = true;
     }
 }

@@ -1,23 +1,23 @@
 ﻿using UnityEditor;
 
-namespace editor.pin
+namespace Editor.pin
 {
     [System.Serializable]
     public class PinInfo
     {
-        public string nickName;
-        public string path;
+        public string NickName;
+        public string Path;
 
         public PinInfo(string nickName, string path)
         {
-            this.nickName = nickName;
-            this.path = path;
+            NickName = nickName;
+            Path = path;
         }
 
         public PinInfo(UnityEngine.Object obj)
         {
-            this.nickName = obj.name;
-            this.path = AssetDatabase.GetAssetPath(obj);
+            NickName = obj.name;
+            Path = AssetDatabase.GetAssetPath(obj);
         }
     }
 }

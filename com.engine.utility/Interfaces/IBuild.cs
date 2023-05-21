@@ -1,6 +1,6 @@
 namespace Engine
 {
-    public interface IBuild : IAsset
+    public interface IBuild
     {
         void OnBuild();
     }

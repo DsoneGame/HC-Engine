@@ -1,13 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace editor.pin
+namespace Editor.pin
 {
     public static class PinMaker
     {
         internal static void OnInitializeProject()
         {
-
+            SceneView.RepaintAll();
         }
 
         [MenuItem("Assets/Add To Pin", false, 19)]

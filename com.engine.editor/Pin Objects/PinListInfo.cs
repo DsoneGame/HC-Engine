@@ -1,38 +1,46 @@
 using Engine.utility;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 
-namespace editor.pin
+namespace Editor.pin
 {
     public static class PinListInfo
     {
-        public static List<PinInfo> s_PinInfo = new List<PinInfo>();
+        public static List<PinInfo> PinInfo = new List<PinInfo>();
 
-        private static readonly string s_PinCountKey = "PIN_COUNT_KEY";
-        private static readonly string s_PinItemKey = "PIN_ITEM_KEY";
+        private const string PinCountKey = "PIN_COUNT_KEY";
+        private const string PinItemKey = "PIN_ITEM_KEY";
 
-        private static PinSettings m_Settings;
-        internal static PinSettings settings
+        private static readonly string EmptyNickName = string.Empty;
+        private static readonly string EmptyPath = string.Empty;
+
+        private const int EmptyValueSave = 0;
+        private const int OverClearValue = 20;
+
+
+        private static PinSettings _settings;
+        internal static PinSettings Settings
         {
             get
             {
-                if (m_Settings == null) m_Settings = PinSettings.GetPinSettings() ?? throw new System.NullReferenceException("Pin Settings is not exists");
+                if (_settings == null) _settings = AssetHelper.GetOrCreateAsset<PinSettings>(PinSettings.FilePath, PinSettings.FileName + ".asset");
 
-                return m_Settings;
+                return _settings;
             }
         }
 
         internal static int Count
         {
-            get { return EditorPrefs.GetInt(s_PinCountKey, 0); }
-            set { EditorPrefs.SetInt(s_PinCountKey, value); }
+            get { return EditorPrefs.GetInt(PinCountKey, EmptyValueSave); }
+            set { EditorPrefs.SetInt(PinCountKey, value); }
         }
 
         public static void OnInitializeProject()
         {
             LoadPaths();
 
-            settings.OnPinInfoUpdated(ToArrayPinInfo());
+            Settings.UpdatePinInfo(ToArrayPinInfo());
         }
 
         internal static void LoadPaths()
@@ -42,11 +50,11 @@ namespace editor.pin
 
             for (int i = 0; i < count; i++)
             {
-                if (EditorPrefs.HasKey(s_PinItemKey + i))
+                if (EditorPrefs.HasKey(PinItemKey + i))
                 {
-                    PinInfo newInfo = new PinInfo("", "");
-                    newInfo.JsonToObject(EditorPrefs.GetString(s_PinItemKey + i));
-                    s_PinInfo.Add(newInfo);
+                    PinInfo newInfo = new PinInfo(EmptyNickName, EmptyPath);
+                    newInfo.JsonToObject(EditorPrefs.GetString(PinItemKey + i));
+                    PinInfo.Add(newInfo);
                 }
             }
         }
@@ -54,35 +62,37 @@ namespace editor.pin
         internal static void UpdatePinsInfo(PinInfo[] infos)
         {
             Count = infos.Length;
-            s_PinInfo = new List<PinInfo>(infos);
+            PinInfo = new List<PinInfo>(infos);
 
-            for (int i = 0; i < s_PinInfo.Count; i++)
+            for (int i = 0; i < PinInfo.Count; i++)
             {
-                EditorPrefs.SetString(s_PinItemKey + i, JsonConverter.ObjectToJson(s_PinInfo[i]));
+                EditorPrefs.SetString(PinItemKey + i, JsonConverter.ObjectToJson(PinInfo[i]));
             }
         }
 
         internal static void Save()
         {
-            Count = s_PinInfo.Count;
+            Count = PinInfo.Count;
 
-            for (int i = 0; i < s_PinInfo.Count; i++)
+            for (int i = 0; i < PinInfo.Count; i++)
             {
-                EditorPrefs.SetString(s_PinItemKey + i, JsonConverter.ObjectToJson(s_PinInfo[i]));
+                EditorPrefs.SetString(PinItemKey + i, JsonConverter.ObjectToJson(PinInfo[i]));
             }
         }
 
         public static bool AddPinObject(UnityEngine.Object obj)
         {
-            if (s_PinInfo.Exists((path) =>
+            if (PinInfo.Exists((pinInfo) =>
             {
-                if (path.path == AssetDatabase.GetAssetPath(obj)) return true;
+                if (pinInfo.Path == AssetDatabase.GetAssetPath(obj)) return true;
+
                 return false;
-            })) return false;
+            }))
+                return false;
 
-            s_PinInfo.Add(new PinInfo(obj));
+            PinInfo.Add(new PinInfo(obj));
 
-            settings.OnPinInfoUpdated(ToArrayPinInfo());
+            Settings.UpdatePinInfo(ToArrayPinInfo());
 
             Save();
             return true;
@@ -90,57 +100,57 @@ namespace editor.pin
 
         public static void RemovePinObject(UnityEngine.Object obj)
         {
-            s_PinInfo.RemoveAt(s_PinInfo.FindIndex((path) =>
+            PinInfo.RemoveAt(PinInfo.FindIndex((path) =>
             {
-                if (path.path == AssetDatabase.GetAssetPath(obj)) return true;
+                if (path.Path == AssetDatabase.GetAssetPath(obj)) return true;
                 return false;
             }));
 
-            settings.OnPinInfoUpdated(ToArrayPinInfo());
+            Settings.UpdatePinInfo(ToArrayPinInfo());
 
             Save();
         }
 
         public static void RemoveAllPinObjects()
         {
-            s_PinInfo.Clear();
+            PinInfo.Clear();
 
-            settings.OnPinInfoUpdated(new PinInfo[0]);
+            Settings.UpdatePinInfo(Array.Empty<PinInfo>());
 
-            int count = Count + 20;
+            int count = Count + OverClearValue;
             for (int i = 0; i < count; i++)
             {
-                if (EditorPrefs.HasKey(s_PinItemKey + i))
-                    EditorPrefs.DeleteKey(s_PinItemKey + i);
+                if (EditorPrefs.HasKey(PinItemKey + i))
+                    EditorPrefs.DeleteKey(PinItemKey + i);
             }
 
-            if (EditorPrefs.HasKey(s_PinCountKey))
-                EditorPrefs.DeleteKey(s_PinCountKey);
+            if (EditorPrefs.HasKey(PinCountKey))
+                EditorPrefs.DeleteKey(PinCountKey);
         }
 
         public static UnityEngine.Object GetPinObject(int index)
         {
             if ((uint)Count <= (uint)index) return null;
-            return AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(s_PinInfo[index].path);
+            return AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(PinInfo[index].Path);
         }
 
         public static string GetNickName(int index)
         {
             if ((uint)Count <= (uint)index) return null;
-            return s_PinInfo[index].nickName;
+            return PinInfo[index].NickName;
         }
 
         public static void DebugAllPins()
         {
-            foreach (PinInfo path in s_PinInfo)
+            foreach (PinInfo path in PinInfo)
             {
-                UnityEngine.Debug.Log(path.path);
+                UnityEngine.Debug.Log(path.Path);
             }
         }
 
         internal static PinInfo[] ToArrayPinInfo()
         {
-            return s_PinInfo.ToArray();
+            return PinInfo.ToArray();
         }
     }
 }

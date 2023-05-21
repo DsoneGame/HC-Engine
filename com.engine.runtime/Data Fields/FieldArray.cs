@@ -1,7 +1,7 @@
 using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Engine.Data
 {
@@ -13,41 +13,11 @@ namespace Engine.Data
             return ((value is T) || (value == null && default(T) == null));
         }
 
-        [Serializable]
-        private struct Element : IComparable<Element>, IEquatable<Element>
-        {
-            public int Id;
-            public FieldKey<T> Field;
-
-            public Element(int key, FieldKey<T> value)
-            {
-                Id = key;
-                Field = value ?? throw new ArgumentNullException("The FieldKey can't be null!...");
-            }
-
-            public int CompareTo(Element other)
-            {
-                return Id.CompareTo(other.Id);
-            }
-
-            public bool Equals(Element other)
-            {
-                return Id == other.Id;
-            }
-
-            public override int GetHashCode()
-            {
-                int hashCode = 1363396886;
-                hashCode = hashCode * -1521134295 + Id.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<FieldKey<T>>.Default.GetHashCode(Field);
-                return hashCode;
-            }
-        }
 
         [SerializeField, HideInInspector] private bool _autoSave;
         [SerializeField] private string _key;
         [SerializeField] private string _fileName;
-        [SerializeField] private List<Element> _elements;
+        [SerializeField] private List<Element<T>> _elements;
 
         public string Key => _key;
         public string FileName => _fileName;
@@ -63,18 +33,17 @@ namespace Engine.Data
         }
 
 
-
         public FieldArray(string key, string fileName = null, int capacity = 0, bool autoSave = true)
         {
             _key = key;
             _autoSave = autoSave;
             _fileName = fileName;
 
-            _elements = new List<Element>(capacity);
+            _elements = new List<Element<T>>(capacity);
 
             for (int i = 0; i < capacity; i++)
             {
-                _elements.Add(new Element(i, new FieldKey<T>(key + i, fileName, default(T), autoSave)));
+                _elements.Add(new Element<T>(i, new ValueField<T>(key + i, fileName, default(T), autoSave)));
             }
         }
 
@@ -115,7 +84,7 @@ namespace Engine.Data
                 int middleI = startI + (windowSize / 2);
                 if (_elements[middleI].Id == index)
                 {
-                    _elements[middleI].Field.value = insertedValue;
+                    _elements[middleI].Field.Value = insertedValue;
                     return;
                 }
                 else if (_elements[middleI].Id < index)
@@ -128,14 +97,14 @@ namespace Engine.Data
                 }
             }
 
-            Element element = new Element(index, new FieldKey<T>((_key + index), _fileName, insertedValue, _autoSave));
+            Element<T> element = new Element<T>(index, new ValueField<T>((_key + index), _fileName, insertedValue, _autoSave));
             _elements.Insert(startI, element);
             if (_autoSave)
                 Debug.Log("Save");
                 element.Field.Save();
         }
 
-        private FieldKey<T> FindFieldKey(int index)
+        private ValueField<T> FindFieldKey(int index)
         {
             int startI = 0;
             int endI = _elements.Count;
@@ -158,8 +127,8 @@ namespace Engine.Data
                 }
             }
 
-            FieldKey<T> result = new FieldKey<T>((_key + index), _fileName, default(T), _autoSave);
-            _elements.Insert(startI, new Element(index, result));
+            ValueField<T> result = new ValueField<T>((_key + index), _fileName, default(T), _autoSave);
+            _elements.Insert(startI, new Element<T>(index, result));
             return result;
         }
 
@@ -167,7 +136,7 @@ namespace Engine.Data
         {
             get
             {
-                return FindFieldKey(index).value;
+                return FindFieldKey(index).Value;
             }
             set
             {
@@ -188,7 +157,7 @@ namespace Engine.Data
             return 0 < FindIndex(id);
         }
 
-        public FieldKey<T> GetFieldKey(int index)
+        public ValueField<T> GetFieldKey(int index)
         {
             return FindFieldKey(index);
         }
@@ -206,35 +175,35 @@ namespace Engine.Data
         {
             if (match == null) throw new ArgumentNullException("The match has a null value!...");
 
-            int result = _elements.FindIndex((element) => match.Invoke(element.Field.value));
+            int result = _elements.FindIndex((element) => match.Invoke(element.Field.Value));
             if (result < 0) return default(T);
 
-            return _elements[result].Field.value;
+            return _elements[result].Field.Value;
         }
         
         public T FindLast(Predicate<T> match)
         {
             if (match == null) throw new ArgumentNullException("The match has a null value!...");
 
-            int result = _elements.FindLastIndex((element) => match.Invoke(element.Field.value));
+            int result = _elements.FindLastIndex((element) => match.Invoke(element.Field.Value));
             if (result < 0) return default(T);
 
-            return _elements[result].Field.value;
+            return _elements[result].Field.Value;
         }
         
         public List<T> FindAll(Predicate<T> match)
         {
             if (match == null) throw new ArgumentNullException("The match has a null value!...");
 
-            List<Element> elements = _elements.FindAll((element) =>
+            List<Element<T>> elements = _elements.FindAll((element) =>
             {
-                return match.Invoke(element.Field.value);
+                return match.Invoke(element.Field.Value);
             });
             List<T> values = new List<T>(elements.Count);
 
-            foreach (Element element in elements)
+            foreach (Element<T> element in elements)
             {
-                values.Add(element.Field.value);
+                values.Add(element.Field.Value);
             }
 
             return values;
@@ -245,7 +214,7 @@ namespace Engine.Data
             if (func == null) throw new ArgumentNullException("The func has a null value!...");
 
             _elements.ForEach((value) => {
-                T t = value.Field.value;
+                T t = value.Field.Value;
                 if (t != null) func.Invoke(t);
             });
         }
@@ -270,7 +239,7 @@ namespace Engine.Data
             if ((System.Object)item == null)
             {
                 for (int i = 0; i < size; i++)
-                    if ((System.Object)_elements[i].Field.value == null)
+                    if ((System.Object)_elements[i].Field.Value == null)
                         return true;
                 return false;
             }
@@ -279,7 +248,7 @@ namespace Engine.Data
                 EqualityComparer<T> c = EqualityComparer<T>.Default;
                 for (int i = 0; i < size; i++)
                 {
-                    if (c.Equals(_elements[i].Field.value, item)) return true;
+                    if (c.Equals(_elements[i].Field.Value, item)) return true;
                 }
                 return false;
             }
@@ -291,7 +260,7 @@ namespace Engine.Data
 
             for (int i = 0; i < _elements.Count; i++)
             {
-                array.Add(_elements[i].Id, _elements[i].Field.value);
+                array.Add(_elements[i].Id, _elements[i].Field.Value);
             }
 
             return array;
@@ -303,7 +272,7 @@ namespace Engine.Data
 
             for (int i = 0; i < _elements.Count; i++)
             {
-                list.Add(_elements[i].Field.value);
+                list.Add(_elements[i].Field.Value);
             }
 
             return list;
@@ -315,7 +284,7 @@ namespace Engine.Data
 
             for (int i = 0; i < _elements.Count; i++)
             {
-                array[i] = _elements[i].Field.value;
+                array[i] = _elements[i].Field.Value;
             }
 
             return array;
@@ -361,7 +330,7 @@ namespace Engine.Data
         {
             if (match == null) throw new ArgumentNullException("The match has a null value!...");
 
-            return _elements.RemoveAll((element) => match.Invoke(element.Field.value));
+            return _elements.RemoveAll((element) => match.Invoke(element.Field.Value));
         }
 
         public bool RemoveAt(int id)

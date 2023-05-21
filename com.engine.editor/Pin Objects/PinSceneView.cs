@@ -1,20 +1,20 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace editor.pin
+namespace Editor.pin
 {
-    public class PinSceneView : Editor
+    public class PinSceneView : UnityEditor.Editor
     {
-        private const int k_Padding = 5;
+        private const int Padding = 5;
 
-        private static bool s_IsInited = false;
+        private static bool IsInited = false;
 
         internal static void OnInitializeProject()
         {
-            if (!s_IsInited)
+            if (!IsInited)
             {
                 SceneView.duringSceneGui += UpdateSceneView;
-                s_IsInited = true;
+                IsInited = true;
             }
         }
 
@@ -31,17 +31,17 @@ namespace editor.pin
 
                 if (GUI.Button(
                     new Rect(
-                    sceneView.camera.pixelWidth - PinListInfo.settings.m_ButtonScale.x - 15,
-                    120 + ((k_Padding + PinListInfo.settings.m_ButtonScale.y) * j),
-                    PinListInfo.settings.m_ButtonScale.x,
-                    PinListInfo.settings.m_ButtonScale.y),
+                    sceneView.camera.pixelWidth - PinListInfo.Settings.ButtonScale.x - 15,
+                    120 + ((Padding + PinListInfo.Settings.ButtonScale.y) * j),
+                    PinListInfo.Settings.ButtonScale.x,
+                    PinListInfo.Settings.ButtonScale.y),
                     nickName, GetButtonStyle()))
                 {
-                    AssetUtility.PingObject(obj);
+                    AssetHelper.PingObject(obj);
                 }
 
-                if (GUI.Button(new Rect(sceneView.camera.pixelWidth - PinListInfo.settings.m_ButtonScale.x - 40,
-                    120 + ((k_Padding + PinListInfo.settings.m_ButtonScale.y) * j), 20f, 20f), "X", GetButtonStyle()))
+                if (GUI.Button(new Rect(sceneView.camera.pixelWidth - PinListInfo.Settings.ButtonScale.x - 40,
+                    120 + ((Padding + PinListInfo.Settings.ButtonScale.y) * j), 20f, 20f), "X", GetButtonStyle()))
                 {
                     PinListInfo.RemovePinObject(obj);
                 }

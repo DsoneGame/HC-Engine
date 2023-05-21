@@ -1,6 +1,6 @@
 namespace Engine
 {
-    public interface IValidate : IAsset
+    public interface IValidate
     {
         void Validate();
     }

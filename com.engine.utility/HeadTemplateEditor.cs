@@ -1,19 +1,22 @@
 #if UNITY_EDITOR
-using Engine;
+using Engine.Attributes;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Engine;
 
-namespace editor
+namespace Editor
 {
     public class HeadTemplateEditor
     {
-        [MenuItem("DSOneGames/Reset Data", false, 0)]
+        [MenuItem("Tempate/Reset Data", false, 0)]
         public static void ResetAllData()
         {
             PlayerPrefs.DeleteAll();
             Data.ObjectSaver.ClearAllFiles();
 
-            IResetData[] reseters = EditorManager.FindAllAssetsOfType<IResetData>();
+
+            IResetData[] reseters = FindHelper.FindAllAssetsOfType<IResetData>();
 
             int idData = 0;
             foreach (IResetData reset in reseters)
@@ -25,13 +28,13 @@ namespace editor
             Debug.Log("Reset Data assets is finished!...");
         }
 
-        [MenuItem("DSOneGames/Unlock Data", false, 0)]
+        [MenuItem("Tempate/Unlock Data", false, 0)]
         public static void UnlockAllData()
         {
             PlayerPrefs.DeleteAll();
             Data.ObjectSaver.ClearAllFiles();
 
-            IUnlock[] unlocks = EditorManager.FindAllAssetsOfType<IUnlock>();
+            IUnlock[] unlocks = FindHelper.FindAllAssetsOfType<IUnlock>();
 
             foreach (IUnlock unlock in unlocks)
             {
@@ -41,10 +44,10 @@ namespace editor
             Debug.Log("Reset Data assets is finished!...");
         }
 
-        [MenuItem("DSOneGames/Validate Settings", false, 0)]
+        [MenuItem("Tempate/Validate Settings", false, 0)]
         public static void ValidateAll()
         {
-            IValidate[] validates = EditorManager.FindAllAssetsOfType<IValidate>();
+            IValidate[] validates = FindHelper.FindAllAssetsOfType<IValidate>();
             for (int i = 0; i < validates.Length; i++)
             {
                 validates[i].Validate();
@@ -53,20 +56,15 @@ namespace editor
             Debug.Log("Validate assets is finished!...");
         }
 
-        [MenuItem("DSOneGames/Save Assets", false, 150)]
+        [MenuItem("Tempate/Save Assets", false, 150)]
         public static void SaveAssets()
         {
-            IAsset[] validates = EditorManager.FindAllAssetsOfType<IAsset>();
-            for (int i = 0; i < validates.Length; i++)
-            {
-                if (validates[i] != null) EditorUtility.SetDirty(validates[i] as Object);
-            }
+            Object[] assets = AssetHelper.GetAssetsOfAttribute(typeof(AssetAttribute), true).ToArray();
 
-            EditorManager.SaveGame();
-
-            for (int i = 0; i < validates.Length; i++)
+            foreach (Object asset in assets)
             {
-                if (validates[i] != null) EditorUtility.ClearDirty(validates[i] as Object);
+                asset?.SaveObject();
+                Debug.Log(asset.name);
             }
 
             Debug.Log("Save assets is finished!...");

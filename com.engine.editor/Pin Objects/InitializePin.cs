@@ -1,9 +1,9 @@
 using UnityEditor;
 
-namespace editor.pin
+namespace Editor.pin
 {
     [InitializeOnLoad]
-    sealed class InitializePin : Editor
+    sealed class InitializePin : UnityEditor.Editor
     {
         [InitializeOnLoadMethod]
         public static void Initialize()

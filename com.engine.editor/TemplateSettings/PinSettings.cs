@@ -1,31 +1,26 @@
 using Engine.Attribute;
 using UnityEngine;
 
-namespace editor.pin
+namespace Editor.pin
 {
-    [TemplateSettings(k_FilePath, k_FileName)]
-    public partial class PinSettings : ScriptableObject
+    [TemplateSettings(FilePath, FileName)]
+    internal sealed class PinSettings : ScriptableObject
     {
-        internal const string k_FilePath = "Assets/Settings/Editor/";
-        internal const string k_FileName = "PinSettings";
+        public const string FilePath = "Assets/Settings/Editor/";
+        public const string FileName = "PinSettings";
 
-        [SerializeField] internal Vector2 m_ButtonScale = new Vector2(80, 20);
-        [SerializeField] internal PinInfo[] m_Pins;
+        public Vector2 ButtonScale = new Vector2(80, 20);
+        public PinInfo[] PinInfos;
 
 
-        internal static PinSettings GetPinSettings()
+        public void UpdatePinInfo(PinInfo[] pinInfo)
         {
-            return AssetUtility.GetOrCreateAsset<PinSettings>(k_FilePath, k_FileName + ".asset");
+            PinInfos = pinInfo;
         }
 
-        internal void OnPinInfoUpdated(PinInfo[] pinInfo)
+        public void OnValidate()
         {
-            m_Pins = pinInfo;
-        }
-
-        private void OnValidate()
-        {
-            PinListInfo.UpdatePinsInfo(m_Pins);
+            PinListInfo.UpdatePinsInfo(PinInfos);
         }
     }
 }

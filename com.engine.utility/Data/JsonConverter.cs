@@ -5,6 +5,8 @@ namespace Engine.utility
 {
     public static class JsonConverter
     {
+        private const string EmptyJson = "{ }";
+
         public static bool JsonToObject<TObject>(this TObject obectConvert, string contents)
         {
             try
@@ -14,7 +16,7 @@ namespace Engine.utility
             }
             catch (Exception e)
             {
-                Debug.LogWarning("Error: " + e.Message);
+                Debug.LogWarning($"Error: {e.Message}");
             }
 
             return false;
@@ -28,10 +30,10 @@ namespace Engine.utility
             }
             catch (Exception e)
             {
-                Debug.LogWarning("Error: " + e.Message);
+                Debug.LogWarning($"Error: {e.Message}");
             }
 
-            return "{ }";
+            return EmptyJson;
         }
     }
 }

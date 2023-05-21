@@ -1,33 +1,38 @@
-using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using editor;
+using System.Diagnostics.Contracts;
+using UnityEditor.Build;
+using Engine.Linq;
+using Editor;
 using Engine;
 
 class BuildProcessor : IPreprocessBuildWithReport
 {
     public int callbackOrder { get { return 0; } }
+
     public void OnPreprocessBuild(BuildReport report)
     {
-        AssetsSettings settings = AssetUtility.FindScribtableObjectOfType<AssetsSettings>() ?? throw new System.NullReferenceException("AssetsSettings has a null value!...");
+        AssetsSettings settings = AssetHelper.FindScribtableObjectOfType<AssetsSettings>();
 
-        IBuild[] builds = EditorManager.FindAllAssetsOfType<IBuild>();
+        Contract.Requires(!settings.IsNull());
+
+        IBuild[] builds = FindHelper.FindAllAssetsOfType<IBuild>();
 
         foreach (IBuild build in builds)
         {
             build?.OnBuild();
         }
 
-        if (settings.resetData)
+        if (settings.ResetData)
         {
             HeadTemplateEditor.ResetAllData();
         }
 
-        if (settings.validate)
+        if (settings.Validate)
         {
             HeadTemplateEditor.ValidateAll();
         }
 
-        if (settings.saveAssets)
+        if (settings.SaveAssets)
         {
             HeadTemplateEditor.SaveAssets();
         }

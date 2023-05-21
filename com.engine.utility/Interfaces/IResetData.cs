@@ -1,6 +1,6 @@
 namespace Engine
 {
-    public interface IResetData : IAsset
+    public interface IResetData
     {
         void ResetData(int idData);
     }

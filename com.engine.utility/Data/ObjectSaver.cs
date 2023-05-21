@@ -5,24 +5,19 @@ namespace Data
 {
     public static class ObjectSaver
     {
-        public static string GetSavingPathFile<TObject>(string savingId = "")
-        {
-            if (!Directory.Exists(Application.persistentDataPath + "/data/"))
-                Directory.CreateDirectory(Application.persistentDataPath + "/data/");
-
-            return Application.persistentDataPath + "/data/" + typeof(TObject).ToString() + savingId + ".json";
-        }
+        public static readonly string Path = $"{Application.persistentDataPath}/data/";
 
         public static string GetSavingPathDirectory()
         {
-            if (!Directory.Exists(Application.persistentDataPath + "/data/"))
-                Directory.CreateDirectory(Application.persistentDataPath + "/data/");
 
-            return Application.persistentDataPath + "/data/";
+            if (!Directory.Exists(Path))
+                Directory.CreateDirectory(Path);
+
+            return Path;
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Edit/Clear All Json Files", false, 266)]
+        [UnityEditor.MenuItem("Edit/Clear All Data Files", false, 266)]
         public static void ClearAllFiles()
         {
             string directoryPath = GetSavingPathDirectory();
@@ -34,7 +29,7 @@ namespace Data
                 }
             }
 
-            Debug.Log("All Files Deleted path is: " + directoryPath);
+            Debug.Log($"All Files Deleted path is: {directoryPath}");
         }
 #endif
     }

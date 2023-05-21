@@ -1,6 +1,6 @@
 namespace Engine
 {
-    public interface IAwake : IAsset
+    public interface IAwake
     {
         void Awake();
     }
