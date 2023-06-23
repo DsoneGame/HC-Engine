@@ -76,5 +76,11 @@ namespace HCEngine.Data
             _isLoaded = true;
             return ES3.Load(_key, FilePath(_fileName), _value);
         }
+
+        public T Load(T defaultValue)
+        {
+            _isLoaded = true;
+            return ES3.Load(_key, FilePath(_fileName), defaultValue);
+        }
     }
 }
