@@ -1,5 +1,4 @@
-﻿using HCEngine.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -21,7 +20,7 @@ namespace HCEngine.Data
             get
             {
                 if (!TryGetValueField(key, out ValueField<T> field))
-                    ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_ItemNotExist, ExceptionArgument.key);
+                    throw new System.ArgumentException($"The key '{key}' ItemNotExist");
                 Contract.EndContractBlock();
 
                 return field.Value;
@@ -31,7 +30,7 @@ namespace HCEngine.Data
                 int index = FindIndex(key);
 
                 if (index == -1)
-                    ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_ItemNotExist, ExceptionArgument.key);
+                    throw new System.ArgumentException($"The key '{key}' ItemNotExist");
                 Contract.EndContractBlock();
 
                 _values[index].Value = value;
@@ -139,7 +138,7 @@ namespace HCEngine.Data
         public void Add(string key, T value)
         {
             if (ContainsKey(key))
-                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_AddingDuplicate, ExceptionArgument.key);
+                throw new System.ArgumentException($"The key '{key}' AddingDuplicate");
             Contract.EndContractBlock();
 
             _values.Add(new ValueField<T>(key, _fileName, value, _autoSave));

@@ -105,6 +105,11 @@ namespace HCEngine.DI
         {
             return ObjectsPovider<TSource>.Values.NonNull().Where(item => item.Id == id);
         }
+        
+        public static TSource WhereIdLastOrDefault<TSource>(int id) where TSource : IIdentificator
+        {
+            return ObjectsPovider<TSource>.Values.NonNull().Where(item => item.Id == id).LastOrDefault();
+        }
 
         /// <summary>
         /// Return the last value that non null where the func is returning true.
