@@ -1,11 +1,12 @@
+using System.Collections.Generic;
+using System.Collections;
 using HCEngine.Balance;
 using HCEngine.Events;
 using HCEngine.Data;
 using HCEngine.Linq;
 using HCEngine.DI;
-using System.Collections.Generic;
-using System.Collections;
 using System.Linq;
+using UnityEngine;
 
 namespace HCEngine.Upgrade
 {
@@ -15,8 +16,7 @@ namespace HCEngine.Upgrade
         public Event<IUpgraded> _onUpgraded = new Event<IUpgraded>();
         public IEventSubscribe<IUpgraded> OnUpgraded => _onUpgraded;
 
-        private UpgradeableType _type;
-
+        private int _upgradeableId;
         private ValueField<int> _level;
         private UpgradableSettings[] _upgradableSettings;
         private SortedDictionary<string, IBalanceInfo> _balanceInfo;
@@ -31,16 +31,14 @@ namespace HCEngine.Upgrade
             }
         }
 
-        public int Id => (int)_type;
         public int Level => _level.Value;
-
         public int CountSettings => _upgradableSettings.Length;
         public int CountBalances => _balanceInfo.Count;
 
 
         public void Inject()
         {
-            DIContainer.Register<IUpgradeable>(this);
+            DIContainer.Register<IUpgradeable>(_upgradeableId, this);
         }
 
         public Upgradeable(UpgradableInfo info)
@@ -55,8 +53,8 @@ namespace HCEngine.Upgrade
 
         private void InitializeInfo()
         {
-            _type = Info.Type;
             _level = Info.Level;
+            _upgradeableId = Info.Id;
             _upgradableSettings = Info.UpgradeInfos;
             _balanceInfo = Info.BalanceInfos.ToSortedDictionary();
         }

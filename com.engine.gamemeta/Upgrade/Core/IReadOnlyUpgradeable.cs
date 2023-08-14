@@ -1,11 +1,10 @@
 ﻿using HCEngine.Balance;
-using HCEngine.DI;
 using HCEngine.Events;
 using System.Collections.Generic;
 
 namespace HCEngine.Upgrade
 {
-    public interface IReadOnlyUpgradeable : IEnumerable<IBalanceInfo>, IIdentificator
+    public interface IReadOnlyUpgradeable : IEnumerable<IBalanceInfo>
     {
         IEventSubscribe<IUpgraded> OnUpgraded { get; }
 

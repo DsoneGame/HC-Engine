@@ -8,6 +8,5 @@
 
         string Name { get; }
         string Category { get; }
-        StoreType StoreType { get; }
     }
 }

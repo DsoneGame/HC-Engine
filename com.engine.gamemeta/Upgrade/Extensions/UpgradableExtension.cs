@@ -61,6 +61,9 @@ namespace HCEngine.Upgrade
 
             foreach (IUpgradeable upgradeable in upgradeableGroup.Upgradeables)
             {
+                if (upgradeable == null || upgradeable.Equals(null))
+                    continue;
+
                 foreach (IBalanceInfo balance in upgradeable)
                 {
                     if (!names.Contains(balance.Name))

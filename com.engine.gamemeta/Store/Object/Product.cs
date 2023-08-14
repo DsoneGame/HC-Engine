@@ -10,21 +10,18 @@ namespace HCEngine.Store
 
         protected string _name;
         protected string _category;
-        protected StoreType _storeType;
         protected ProductSettings _settings;
 
         public string Name => _name;
         public string Category => _category;
-        public StoreType StoreType => _storeType;
 
         public ProductSettings Settings => _settings;
         public ProductState State => (ProductState)_stateField.Value;
 
 
-        public Product(string name, string category, StoreType type, ProductSettings settings, ValueField<int> field)
+        public Product(string name, string category, ProductSettings settings, ValueField<int> field)
         {
             _name = name;
-            _storeType = type;
             _category = category;
             _stateField = field;
             _settings = settings;

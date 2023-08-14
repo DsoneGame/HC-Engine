@@ -6,12 +6,10 @@ namespace HCEngine.RewardSystem.Generic
     [System.Serializable]
     public struct RewardRarityConfig : IRandomRarity
     {
-        public float Rarity;
+        [Identificator((int)Systems.Rewardable)] public int RewardableId;
 
         public Vector2Int CountRange;
-
-        public RewardableType RewardableType;
-
+        public float Rarity;
         public float RarityValue => Rarity;
     }
 }

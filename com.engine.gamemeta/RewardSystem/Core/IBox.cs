@@ -1,11 +1,10 @@
-using HCEngine.DI;
 using System.Collections.Generic;
 
 namespace HCEngine.RewardSystem
 {
-    public interface IBox : IEnumerable<PairCountRewardable>, IIdentificator
+    public interface IBox : IEnumerable<PairCountRewardable>
     {
-        BoxType Type { get; }
+        int Id { get; }
         
         void GenerateRewards();
 

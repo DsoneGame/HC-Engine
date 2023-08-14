@@ -1,13 +1,12 @@
-﻿using HCEngine.DI;
-using HCEngine.Events;
+﻿using HCEngine.Events;
 
 namespace HCEngine.Currency
 {
-    public interface ICurrency : IIdentificator
+    public interface ICurrency
     {
-        int totalCoins { get; }
-
         IEventSubscribe<ICurrencyUpdated> OnCurrencyUpdated { get; }
+
+        int TotalCoins { get; }
 
         bool AddCurrency(int amount);
 

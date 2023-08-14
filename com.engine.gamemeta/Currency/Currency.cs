@@ -10,19 +10,17 @@ namespace HCEngine.Currency
     {
         private Event<ICurrencyUpdated> _onCurrencyUpdated = new Event<ICurrencyUpdated>();
 
-        [SerializeField] private CurrencyType Type = CurrencyType.None;
+        [SerializeField, Identificator((int)Systems.Currency)] private int _currencyId;
         [SerializeField] private CurrencyInfo _currencyInfo;
 
         private ValueField<int> _currentValue;
 
-        public int totalCoins => _currentValue.Value;
+        public int TotalCoins => _currentValue.Value;
         public IEventSubscribe<ICurrencyUpdated> OnCurrencyUpdated => _onCurrencyUpdated;
-
-        public int Id => (int)Type;
 
         public void Inject()
         {
-            DIContainer.Register<ICurrency>(this);
+            DIContainer.Register<ICurrency>(_currencyId, this);
         }
 
         public void Awake()

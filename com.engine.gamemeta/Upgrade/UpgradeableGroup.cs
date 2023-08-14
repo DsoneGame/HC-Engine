@@ -34,12 +34,12 @@ namespace HCEngine.Upgrade
             => _events;
 
         private Event<IUpdatedValues> _events = new Event<IUpdatedValues>();
-        private SortedDictionary<string, IProgressCalculator> _balances;
+        private SortedList<string, IProgressCalculator> _balances;
         private IUpgradeable[] _upgradeables;
 
         public UpgradeableGroup(IEnumerable<IUpgradeable> upgradeables)
         {
-            _balances = new SortedDictionary<string, IProgressCalculator>();
+            _balances = new SortedList<string, IProgressCalculator>();
 
             CreateGroup(upgradeables);
 
@@ -50,7 +50,7 @@ namespace HCEngine.Upgrade
         {
             Contract.Assert(pairs != null, "The array that you are trying to create has a null value!...");
 
-            _balances = new SortedDictionary<string, IProgressCalculator>(pairs);
+            _balances = new SortedList<string, IProgressCalculator>(pairs);
 
             CreateGroup(upgradeables);
 
@@ -65,11 +65,13 @@ namespace HCEngine.Upgrade
 
             SubscribeUpgrades(_upgradeables);
         }
-
+        
         private void SubscribeUpgrades(IUpgradeable[] upgradeables)
         {
             foreach (var item in upgradeables)
             {
+                if (item == null || item.Equals(null))
+                    continue;
                 item.OnUpgraded.Subscribe(this);
             }
         }
@@ -100,9 +102,10 @@ namespace HCEngine.Upgrade
 
         public bool TryGetValue(string balanceName, out float value)
         {
+            value = 0;
             bool isFaund = _balances.TryGetValue(balanceName, out IProgressCalculator calculator);
-
-            value = calculator.CurrentResult;
+            if (isFaund)
+                value = calculator.CurrentResult;
 
             return isFaund;
         }
@@ -159,6 +162,9 @@ namespace HCEngine.Upgrade
         {
             foreach (IUpgradeable upgradeable in upgradeables)
             {
+                if (upgradeable == null || upgradeable.Equals(null))
+                    continue;
+
                 if (upgradeable.TryGetBalanceInfo(balanceName, out IBalanceInfo value))
                     yield return value.GetValue(upgradeable.Level);
             }

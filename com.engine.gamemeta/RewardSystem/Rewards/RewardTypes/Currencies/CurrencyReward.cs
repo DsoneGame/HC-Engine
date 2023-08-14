@@ -1,18 +1,17 @@
 ﻿using HCEngine.Currency;
 using HCEngine.DI;
 using System.Diagnostics.Contracts;
-using System.Linq;
 
 namespace HCEngine.RewardSystem
 {
     public class CurrencyReward : Rewardable, IAwake
     {
-        private CurrencyType _currencyType;
+        private int _idCurrency;
         private ICurrency _currency;
 
-        public CurrencyReward(RewardableType type, CurrencyType currencyType) : base(type)
+        public CurrencyReward(int identificator, int idCurrency) : base(identificator)
         {
-            _currencyType = currencyType;
+            _idCurrency = idCurrency;
         }
 
         public void Awake()
@@ -22,8 +21,8 @@ namespace HCEngine.RewardSystem
 
         public void InitializeCurrency()
         {
-            _currency = DIContainer.WhereId<ICurrency>((int)_currencyType).LastOrDefault();
-            Contract.Assert(_currency != null, $"The currency of type {_currencyType} is not found!");
+            _currency = DIContainer.GetValueOfId<ICurrency>(_idCurrency);
+            Contract.Assert(_currency != null, $"The currency of id {_idCurrency} is not found!");
         }
 
         public override void Claim(int count)

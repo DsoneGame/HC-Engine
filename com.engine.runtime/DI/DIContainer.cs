@@ -1,158 +1,159 @@
 ﻿using System.Collections.Generic;
 using System;
-using System.Linq;
-using UnityEngine;
 
 namespace HCEngine.DI
 {
     public static class DIContainer
     {
-        private static class ObjectsPovider<TType>
+        internal const int SingleId = int.MaxValue;
+
+        internal static class Container<TValue> where TValue : class
         {
-            internal static float CleanEvery =  3f;
-            internal static float LastCleanTime = Time.unscaledTime;
-            internal readonly static List<TType> Values = new List<TType>();
+            private static readonly SortedList<int, TValue> _container
+                = new SortedList<int, TValue>();
+
+            public static IEnumerable<TValue> Val
+            {
+                get => _container.Values;
+            }
+
+            public static IEnumerable<int> Ids
+            {
+                get => _container.Keys;
+            }
+
+            public static void AddSingleValue(TValue value)
+            {
+                if (_container.ContainsKey(SingleId))
+                    _container[SingleId] = value;
+                else
+                    _container.Add(SingleId, value);
+            }
+
+            public static void Override(int id, TValue value)
+            {
+                if (!_container.TryAdd(id, value))
+                    _container[id] = value;
+            }
+
+            public static bool Remove(TValue value)
+            {
+                foreach (var item in Container<TValue>._container)
+                {
+                    if (item.Value == value)
+                        return _container.Remove(item.Key);
+                }
+
+                return false;
+            }
+
+            public static bool Remove(int id)
+            {
+                return _container.Remove(id);
+            }
+
+            public static TValue LastNonNull()
+            {
+                IList<TValue> values = _container.Values;
+
+                for (int i = values.Count - 1; 0 <= i; i--)
+                {
+                    if (values[i] != null && !values.Equals(null))
+                        return values[i];
+                }
+
+                return null;
+            }
+
+            public static TValue GetValue(int id)
+            {
+                if (_container.TryGetValue(id, out TValue result))
+                {
+                    return result;
+                }
+
+                return null;
+            }
+
+            public static void Clear()
+            {
+                _container.Clear();
+            }
+
+
+            public static void RemoveAll(Predicate<TValue> predicate)
+            {
+                List<int> keys = new List<int>();
+                foreach (var pair in _container)
+                {
+                    if (predicate.Invoke(pair.Value))
+                        keys.Add(pair.Key);
+                }
+
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    _container.Remove(keys[i]);
+                }
+            }
         }
 
-        /// <summary>
-        /// Here we register just one value, Always override to the last VALUE added.
-        /// </summary>
-        /// <typeparam name="T"> The Data Type that we will saved. </typeparam>
-        public static void RegisterAsSingle<T>(T value)
+        public static void Register<TValue>(int id, TValue value) where TValue : class
         {
-            if (value == null) throw new NullReferenceException("eventObject has a null value!...");
-
-            ObjectsPovider<T>.Values.Clear();
-            ObjectsPovider<T>.Values.Add(value);
+            Container<TValue>.Override(id, value);
         }
 
-        /// <summary>
-        /// Register the value in the list with the other values of the same type (TType). if the value already exist, It will not added.
-        /// </summary>
-        public static void Register<TType>(TType value, bool cleanNulls = false)
+        public static void RegisterAsSingle<TValue>(TValue value) where TValue : class
         {
-            if (cleanNulls || ObjectsPovider<TType>.LastCleanTime + ObjectsPovider<TType>.CleanEvery <= Time.unscaledTime)
-                CleanNull<TType>();
-
-            ObjectsPovider<TType>.Values.Add(value);
+            Container<TValue>.AddSingleValue(value);
         }
 
         /// <summary>
         /// Register range of values in the list with the other values with the same type (TType).
         /// </summary>
-        public static void RegisterRange<TType>(IEnumerable<TType> collection)
+        public static void RegisterRange<TValue>(IEnumerable<KeyValuePair<int, TValue>> collection) where TValue : class
         {
-            if (collection == null) throw new ArgumentNullException();
+            if (collection == null)
+                throw new ArgumentNullException();
 
-            ObjectsPovider<TType>.Values.AddRange(collection);
-        }
-
-        /// <summary>
-        /// Get the last object added non null of type T.
-        /// </summary>
-        /// <typeparam name="TSource"> The Data Type that we will saved. </typeparam>
-        /// <typeparam name="TResult"> The type of object that we will return. </typeparam>
-        public static TResult AsSingle<TSource, TResult>()
-        {
-            List<TSource> values = ObjectsPovider<TSource>.Values;
-            for (int i = values.Count - 1; 0 <= i; i--)
+            foreach (var item in collection)
             {
-                object value = values[i];
-                if (value != null && !value.Equals(null) && value is TResult) return (TResult)value;
+                Container<TValue>.Override(item.Key, item.Value);
             }
-
-            return default(TResult);
         }
 
-        /// <summary>
-        /// Get the last object added non null of type T.
-        /// </summary>
-        /// <typeparam name="TSource"> The Data Type that we will saved. </typeparam>
-        public static TSource AsSingle<TSource>()
+        public static bool Unregister<TValue>(TValue value) where TValue : class
         {
-            List<TSource> values = ObjectsPovider<TSource>.Values;
-            for (int i = values.Count - 1; 0 <= i; i--)
-            {
-                if (values[i] != null && !values[i].Equals(null)) return values[i];
-            }
-
-            return default(TSource);
+            return Container<TValue>.Remove(value);
         }
 
-        /// <summary>
-        /// To a list all values of type TType and return it as an array of TType.
-        /// </summary>
-        /// <typeparam name="T"> The Data Type that we will searching. </typeparam>
-        public static IList<TType> Collect<TType>()
+        public static bool UnregisterById<TValue>(int id) where TValue : class
         {
-            return ObjectsPovider<TType>.Values;
+            return Container<TValue>.Remove(id);
         }
 
-        /// <summary>
-        /// Return the last value that non null where the func is returning true.
-        /// </summary>
-        /// <returns> We return the value that we selection on the func parameter, We have exeption if we don't have a value!... </returns>
-        public static TSource WhereLast<TSource>(Func<TSource, bool> func)
+        public static TValue AsSingle<TValue>() where TValue : class
         {
-            return ObjectsPovider<TSource>.Values.NonNull().Where(func).Last();
+            return Container<TValue>.LastNonNull();
         }
 
-        /// <summary>
-        /// Return the last value that non null where the func is returning true.
-        /// </summary>
-        /// <returns> We return the value that we selection on the func parameter, We have exeption if we don't have a value!... </returns>
-        public static IEnumerable<TSource> WhereId<TSource>(int id) where TSource : IIdentificator
+        public static IEnumerable<TValue> Collect<TValue>() where TValue : class
         {
-            return ObjectsPovider<TSource>.Values.NonNull().Where(item => item.Id == id);
-        }
-        
-        public static TSource WhereIdLastOrDefault<TSource>(int id) where TSource : IIdentificator
-        {
-            return ObjectsPovider<TSource>.Values.NonNull().Where(item => item.Id == id).LastOrDefault();
+            return Container<TValue>.Val;
         }
 
-        /// <summary>
-        /// Return the last value that non null where the func is returning true.
-        /// </summary>
-        /// <returns> We return the value that we selection on the func parameter, We return null if we don't have a value!... </returns>
-        public static TSource WhereLastOrDefault<TSource>(Func<TSource, bool> func)
+        public static TValue GetValueOfId<TValue>(int id) where TValue : class
         {
-            return ObjectsPovider<TSource>.Values.NonNull().Where(func).LastOrDefault();
+            return Container<TValue>.GetValue(id);
         }
 
-        /// <summary>
-        /// ToArray all values of type TType and return it as an array of TType.
-        /// </summary>
-        /// <typeparam name="T"> The Data Type that we will searching. </typeparam>
-        public static TType[] ToArray<TType>()
+        public static void Clear<TValue>() where TValue : class
         {
-            return ObjectsPovider<TType>.Values.ToArray();
+            Container<TValue>.Clear();
         }
 
-        /// <summary>
-        /// Clear all values of type (TType).
-        /// </summary>
-        public static void Clear<TType>()
+        public static void CleanNull<TValue>() where TValue : class
         {
-            ObjectsPovider<TType>.Values.Clear();
-        }
-
-
-        /// <summary>
-        /// Clean all the null values.
-        /// </summary>
-        public static void CleanNull<TType>()
-        {
-            ObjectsPovider<TType>.LastCleanTime = Time.unscaledTime;
-            ObjectsPovider<TType>.Values.RemoveAll(item => (item == null || item.Equals(null)));
-        }
-
-        /// <summary>
-        /// The clean every is a value that make clean all nulls every time that we will set. The default value is 3.
-        /// </summary>
-        public static void SetCleanEvery<TType>(float value)
-        {
-            ObjectsPovider<TType>.CleanEvery = value;
+            Container<TValue>.RemoveAll((value) => value == null || value.Equals(null));
         }
     }
 }

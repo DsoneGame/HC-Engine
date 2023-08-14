@@ -19,15 +19,14 @@ namespace HCEngine.RewardSystem
 
                 yield return new PairCountRewardable(
                     UnityEngine.Random.Range(config.CountRange.x, config.CountRange.y),
-                    FindRewardable(config.RewardableType)
-                    );
+                    FindRewardable(config.RewardableId));
             }
         }
 
-        private IRewardable FindRewardable(RewardableType type)
+        private IRewardable FindRewardable(int id)
         {
-            IRewardable rewardable = DIContainer.WhereId<IRewardable>((int)type).LastOrDefault();
-            Contract.Assert(rewardable != null, $"The rewardable of type {type} is not found!");
+            IRewardable rewardable = DIContainer.GetValueOfId<IRewardable>((int)id);
+            Contract.Assert(rewardable != null, $"The rewardable of id {id} not found!");
 
             return rewardable;
         }

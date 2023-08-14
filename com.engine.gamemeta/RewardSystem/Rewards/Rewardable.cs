@@ -1,42 +1,22 @@
 ﻿using HCEngine.DI;
-using System;
 using UnityEngine;
 
 namespace HCEngine.RewardSystem
 {
     public abstract class Rewardable : IRewardable, IDependency
     {
-        [SerializeField] protected RewardableType _rewardableType;
+        [SerializeField, Identificator((int)Systems.Rewardable)] protected int _rewardId;
 
-        public int Id => (int)_rewardableType;
-
-        public Rewardable(RewardableType type)
+        public Rewardable(int identificator)
         {
-            _rewardableType = type;
+            _rewardId = identificator;
         }
 
         public void Inject()
         {
-            DIContainer.Register<IRewardable>(this);
+            DIContainer.Register<IRewardable>(_rewardId, this);
         }
 
         public abstract void Claim(int count);
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(_rewardableType);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is Rewardable))
-            {
-                return false;
-            }
-
-            Rewardable other = (Rewardable)obj;
-            return _rewardableType == other._rewardableType;
-        }
-
     }
 }

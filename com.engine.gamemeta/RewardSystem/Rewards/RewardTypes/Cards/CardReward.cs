@@ -1,18 +1,17 @@
 ﻿using HCEngine.Upgrade;
 using HCEngine.DI;
-using System.Linq;
 using System.Diagnostics.Contracts;
 
 namespace HCEngine.RewardSystem
 {
     public class CardReward : Rewardable, IAwake
     {
-        private UpgradeableType _cardType;
+        private int _cardIdentificator;
         private IUpgradeableCard _upgradeable;
 
-        public CardReward(RewardableType type, UpgradeableType cardType) : base(type)
+        public CardReward(int rewardableIdentificator, int cardIdentificator) : base(rewardableIdentificator)
         {
-            _cardType = cardType;
+            _cardIdentificator = cardIdentificator;
         }
 
         public void Awake()
@@ -22,8 +21,10 @@ namespace HCEngine.RewardSystem
 
         public void InitializeUpgradeable()
         {
-            _upgradeable = DIContainer.WhereId<IUpgradeable>((int)_cardType).OfType<IUpgradeableCard>().LastOrDefault();
-            Contract.Assert(_upgradeable != null, $"The card of type {_cardType} is not found!");
+            IUpgradeable upgradeable = DIContainer.GetValueOfId<IUpgradeable>(_cardIdentificator);
+            Contract.Assert(upgradeable != null, $"The card of id {_cardIdentificator} not found!");
+            _upgradeable = upgradeable as IUpgradeableCard;
+            Contract.Assert(_upgradeable != null, $"The upgradeable of id {_cardIdentificator} is non casting to IUpgradeableCard!");
         }
 
         public override void Claim(int count)

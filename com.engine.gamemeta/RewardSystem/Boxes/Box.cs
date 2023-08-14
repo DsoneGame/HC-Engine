@@ -10,7 +10,7 @@ namespace HCEngine.RewardSystem
 {
     public class Box : IBox, IDependency
     {
-        private BoxType _type;
+        private int _identificator;
         private bool _isRepeatable;
         private int _rewardsCount;
         private RewardRarityConfig[] _configs;
@@ -18,16 +18,14 @@ namespace HCEngine.RewardSystem
         private IRewardsGenerator _generator;
         private PairCountRewardable[] _rewards;
 
-        public BoxType Type => _type;
+        public int Id => _identificator;
         public int RewardsCount => _rewardsCount;
 
-        public int Id => (int)_type;
-
-        public Box(BoxType type, IRewardsGenerator generator, RewardRarityConfig[] configs, int rewardsCount, bool isRepeatable)
+        public Box(int identificator, IRewardsGenerator generator, RewardRarityConfig[] configs, int rewardsCount, bool isRepeatable)
         {
             Contract.Requires(0 < rewardsCount, "The rewards count should be more them zero!...");
 
-            _type = type;
+            _identificator = identificator;
             _configs = configs;
             _generator = generator;
             _isRepeatable = isRepeatable;
@@ -35,10 +33,10 @@ namespace HCEngine.RewardSystem
         }
 
         public Box(BoxInfo info, IRewardsGenerator generator) :
-            this(info.Type, generator, info.Configs, info.RewardsCount, info.IsRepeatable) { }
+            this(info.BoxId, generator, info.Configs, info.RewardsCount, info.IsRepeatable) { }
 
         public Box(BoxInfo info) :
-            this(info.Type, new RewardsGenerator(), info.Configs, info.RewardsCount, info.IsRepeatable) { }
+            this(info.BoxId, new RewardsGenerator(), info.Configs, info.RewardsCount, info.IsRepeatable) { }
 
         public void ThrowExceptionIfNotGenerated()
         {
@@ -48,7 +46,7 @@ namespace HCEngine.RewardSystem
 
         public void Inject()
         {
-            DIContainer.Register<IBox>(this);
+            DIContainer.Register<IBox>(_identificator, this);
         }
 
         public void GenerateRewards()

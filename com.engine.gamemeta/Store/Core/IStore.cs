@@ -1,10 +1,9 @@
-﻿using HCEngine.DI;
-using HCEngine.Events;
+﻿using HCEngine.Events;
 using System.Collections.Generic;
 
 namespace HCEngine.Store
 {
-    public interface IStore : IEnumerable<IReadOnlyProduct>, IIdentificator
+    public interface IStore : IEnumerable<IReadOnlyProduct>
     {
         Event<IProductUpdated> OnProductUpdated { get; }
 

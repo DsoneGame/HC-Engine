@@ -16,7 +16,7 @@ namespace HCEngine.Store
     {
         public Event<IProductUpdated> OnProductUpdated { get; private set; } = new Event<IProductUpdated>();
 
-        [SerializeField] private StoreType _type;
+        [SerializeField, Identificator((int)Systems.Store)] private int _storeId;
         [SerializeField] private StoreInfo _info;
 
         private Product _selectedProduct;
@@ -25,7 +25,6 @@ namespace HCEngine.Store
 
 
         public IReadOnlyProduct this[string productName] => FindProduct(productName);
-        public int Id => (int)_type;
 
         public Store(StoreInfo info)
         {
@@ -38,7 +37,7 @@ namespace HCEngine.Store
 
         public void Inject()
         {
-            DIContainer.Register<IStore>(this);
+            DIContainer.Register<IStore>(_storeId, this);
         }
 
         public void Awake()
@@ -55,7 +54,7 @@ namespace HCEngine.Store
             {
                 ProductConfig info = infos[i];
                 
-                _products[i] = new Product(info.Name, info.Cagegory, _type, info.Settings, _info.ProductFields[i]);
+                _products[i] = new Product(info.Name, info.Cagegory, info.Settings, _info.ProductFields[i]);
 
                 SetSelectedProduct(_products[i]);
             }

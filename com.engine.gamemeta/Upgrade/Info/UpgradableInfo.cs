@@ -1,5 +1,6 @@
 ﻿using HCEngine.Balance;
 using HCEngine.Data;
+using HCEngine.DI;
 using UnityEngine;
 
 namespace HCEngine.Upgrade
@@ -8,7 +9,7 @@ namespace HCEngine.Upgrade
     public class UpgradableInfo : ScriptableObject
     {
         [Header("Save Parameters")]
-        public UpgradeableType Type;
+        [Identificator(((int)Systems.Upgradeable))]public int Id;
         public ValueField<int> Level;
 
         [Header("Info Parameters")]

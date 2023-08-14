@@ -10,7 +10,8 @@ namespace HCEngine.DI
         /// </summary>
         public static IEnumerable<TSource> NonNull<TSource>(this IEnumerable<TSource> source)
         {
-            if (source == null) throw new ArgumentNullException("The source has a null value!..");
+            if (source == null)
+                throw new ArgumentNullException("The source has a null value!..");
 
             foreach (TSource obj in source)
             {

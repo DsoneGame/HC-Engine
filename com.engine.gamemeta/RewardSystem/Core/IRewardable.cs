@@ -1,8 +1,6 @@
-﻿using HCEngine.DI;
-
-namespace HCEngine.RewardSystem
+﻿namespace HCEngine.RewardSystem
 {
-    public interface IRewardable : IClaimable, IIdentificator
+    public interface IRewardable : IClaimable
     {
     }
 }
